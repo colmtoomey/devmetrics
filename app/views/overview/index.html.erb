@@ -1,0 +1,25 @@
+
+
+<h1>Overview</h1>
+ 
+<table>
+  <tr>
+    <th>Date</th>
+    <th>Created</th>
+    <th>Fixed</th>
+    <th>Closed</th>
+    <th>WSI</th>
+  </tr>
+ 
+<% @weeks.each do |w| %>
+  <tr>
+    <td><%= w.day %></td>
+    <td><%= w.created %></td>
+    <td><%= w.fixed %></td>
+    <td><%= w.closed %></td>
+    <td><%= w.wsi %></td>
+  </tr>
+<% end %>
+</table>
+ 
+<br>

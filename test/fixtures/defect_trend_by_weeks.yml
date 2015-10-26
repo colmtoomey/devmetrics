@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  day: 
+  created: 1
+  closed: 1
+  fixed: 1
+  wsi: 1
+
+two:
+  day: 
+  created: 1
+  closed: 1
+  fixed: 1
+  wsi: 1
