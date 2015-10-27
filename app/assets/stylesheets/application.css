@@ -13,3 +13,29 @@
  *= require_tree .
  *= require_self
  */
+
+
+body {
+	font-family: 'Roboto', sans-serif;
+}
+
+table
+{
+    border: 1px solid #ccc;
+}
+
+th 
+{
+	background-color: #eaeaea;
+	padding: 20px;
+}
+
+td
+{
+	padding: 5px;
+	text-align: right;
+    
+    margin: 0;
+    padding: 4px;
+    background-color: #ffffff;
+}

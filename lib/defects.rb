@@ -7,7 +7,7 @@
 # sudo gem install rally_rest_api [ add to gem file ]
 
 PROJECT_NAME=ENV["RALLY_PROJECT_NAME"]
-RELEASE_NAME=ENV["RALLY_PROJECT_NAME"]
+RELEASE_NAME=ENV["RALLY_RELEASE_NAME"]
 
 LOGIN=ENV["RALLY_LOGIN"]
 PASSWORD=ENV["RALLY_PASSWORD"]
@@ -20,12 +20,9 @@ UNSCHEDULED_RE=/Unscheduled User Story \[(US[0-9\.]+)/
 FIXED_RE=/STATE changed from \[[A-Za-z ]*\] to \[Fixed\]/
 CLOSED_RE=/STATE changed from \[[A-Za-z ]*\] to \[Closed\]/
 
-
 ENV['RAILS_ENV'] ||= 'development'
 
-#require File.join(File.dirname(__FILE__),'..','config','environment')
 
-#require 'rubygems'
 require 'rally_rest_api'
 require 'date'
 require 'pp'
@@ -224,40 +221,8 @@ def process_defects(defect_list,start_date,end_date,wsi_hash)
     
       print "#{item[0].strftime('%Y-%m-%d')} CREATED=#{record[:created]} CLOSED=#{record[:closed]} FIXED=#{record[:fixed]} WSI=#{xwsi}\n"
    }
-  
-   print "\ntotal created in time period: ", total_created_defects, "\n"
-   print "total fixed in time period: ", total_fixed_defects, "\n"
-   print "total closed in time period: ", total_closed_defects, "\n"
-   print "deferred: ", total_deferred, "\n"
-   print "wsi: #{wsi}\n**********************************\n"
-  
+
  
-  
-   html = "\n<div>\n"
-   html << "<table id='defect-dashboard'>\n"
-   html << "<tr><td>Open Defects</td><td>Defects Pending Verification</td><td>Closed Defects</td><td>Deferred Defects</td></tr>\n"
-  
-   html << "<tr>"
-  
-   html << "<td><div class='card'><span class='value'>#{current_open}</span><br><span class='label'>Total</span></div>"
-   html << "<div class='card'><span class='value'>#{high_priority}</span><br><span class='label'>High Priority</span></div>\n"
-   html << "<div class='card'><span class='value'>#{high_severity}</span><br><span class='label'>High Severity</span></div></td>\n"
-  
-   html << "<td><div class='card'><span class='value'>#{current_fixed}</span><br><span class='label'>Fixed</span></div>\n"
-   html << "<div class='card'><span class='value'>#{current_cannotfix}</span><br><span class='label'>Cannot Fix</span></div></td>\n"
-  
-   html << "<td><div class='card'><span class='value'>#{current_closed}<span><br></div></td>\n"
-   html << "<td><div class='card'><span class='value'>#{current_deferred}</span><br></div></td>\n"
-  
-   html << "</tr>\n"
-  
-   html << "</table>"
-   html << "</div>\n\n"
-   
-   print "\ncurrent: open=", current_open, " fixed=", current_fixed, " cannot-fix=", current_cannotfix, " defer=", current_deferred, "\n"
-  
-   #html << render_hash("Resolution",closed_resolution_bucket)
-   return html
 end
 
 # get all defects updated during sprint
@@ -300,6 +265,14 @@ end
 
 # main section
 
+require 'yaml'
+require 'active_record'
+require './app/models/defect_trend_by_week'
+
+
+configuration = YAML::load(IO.read('config/database.yml'))
+ActiveRecord::Base.establish_connection(configuration['development'])
+
 begin
    rally=RallyRestAPI.new(:username => LOGIN, :password => PASSWORD)
 rescue Exception => ex
@@ -311,18 +284,12 @@ end
 project=rally.find(:project){equal :name, PROJECT_NAME}.first
 
 release=rally.find(:release, :project => project, :fetch => true,
-:project_scope_up => false,
-:project_scope_down => true){equal :name, RELEASE_NAME}.first
-     
-puts "PROJECT: #{PROJECT_NAME} RELEASE: #{RELEASE_NAME}"
-  
+   :project_scope_up => false,
+   :project_scope_down => true){equal :name, RELEASE_NAME}.first
+   
 start_date=DateTime.parse(release.release_start_date)
 end_date=DateTime.parse(release.release_date)
 puts "release: #{start_date.strftime('%Y-%m-%d')} -> #{end_date.strftime('%Y-%m-%d')} (#{end_date.to_date()-start_date.to_date()} days)"
-  
-# write out all the defect stuff
-   
-File.open("results.csv",'w') { |file| file.write("DAY, CREATED, CLOSED, FIXED, WSI\n") }
 
 # get the defects and wsi scores
   
@@ -342,14 +309,24 @@ tmp.each { |item|
    #wsi=wsi+record[:created]-record[:fixed]
    wsi_daily.push([item[0],xwsi])
 
-   line = "#{item[0].strftime('%Y-%m-%d')}, #{record[:created]}, #{record[:closed]}, #{record[:fixed]}, #{xwsi}\n"
+   line = "xx #{item[0].strftime('%Y-%m-%d')}, #{record[:created]}, #{record[:closed]}, #{record[:fixed]}, #{xwsi}\n"
+
+   week_record=DefectTrendByWeek.find_or_initialize_by(day: item[0].strftime('%Y-%m-%d'))
+   week_record.created=record[:created]
+   week_record.fixed=record[:fixed]
+   week_record.closed=record[:closed]
+   week_record.wsi=xwsi
+   week_record.save
+
+
+
    # text << "#{item[0].strftime('%Y-%m-%d')} CREATED=#{record[:created]} CLOSED=#{record[:closed]} FIXED=#{record[:fixed]} WSI=#{xwsi}\n"
      
    # head << "[#{item[0].to_time.to_i*1000}, #{xwsi}]"
      
-   File.open("results.csv", 'a') { |file| file.write(line) }
+   #File.open("results.csv", 'a') { |file| file.write(line) }
       
-   #print line
+   print line
 }
     
   

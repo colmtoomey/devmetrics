@@ -1,6 +1,6 @@
 class OverviewController < ApplicationController
   def index
-  	@weeks=DefectTrendByWeek.all
+  	@weeks=DefectTrendByWeek.all.order(:day)
   end
 
 	#user = User.find_by(name: 'David')
