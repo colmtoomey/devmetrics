@@ -5,6 +5,10 @@ Rails.application.routes.draw do
 
   get 'overview', to: 'overview#index'
 
+  get 'group', to: 'overview#group'
+
+  get 'test', to: 'overview#test'
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

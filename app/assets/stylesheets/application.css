@@ -17,6 +17,27 @@
 
 body {
 	font-family: 'Roboto', sans-serif;
+	background: #EEF1F8;
+}
+
+#container {
+	width: 1200px;
+
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#chart {
+
+	background: white;
+	width: 1000px;
+	border: 1px solid #cccccc;
+	margin-left: auto;
+	margin-right: auto;
+
+	border-radius: 5px;
+
+	box-shadow: 10px 10px 15px #ccc;
 }
 
 table
@@ -39,3 +60,34 @@ td
     padding: 4px;
     background-color: #ffffff;
 }
+
+.axis {
+	   shape-rendering: crispEdges;
+	}
+	   
+	.x.axis line {
+	   stroke: #000000;
+	   stroke-width: 1.0;
+	}
+	  
+	.x.axis .minor {
+	   stroke-opacity: .5;
+	   stroke: #000000;
+	   stroke-width: 1.5;
+	}
+	 
+	.x.axis path {
+	  display: none;
+	}
+
+	.y.axis line, .y.axis path {
+	   fill: none;
+	   stroke: #000000;
+	   stroke-width: 1.0;
+	}
+ 
+	.y.axis .minor{
+	   stroke: #000000;
+	   stroke-width: 1.5;
+	   stroke-opacity: 0.5;
+	}

@@ -2,7 +2,16 @@
 
 <%= javascript_include_tag "trend_chart" %>
 
-<h1>Overview</h1>
+<div id="container">
+
+<h1>Weighted Severity Trend</h1>
+
+<h2>Overview Chart</h2>
+
+<div id="chart">
+</div>
+
+<h2>Data</h2>
  
 <table>
   <tr>
@@ -13,8 +22,8 @@
     <th>WSI</th>
   </tr>
  
-<% @weeks.each do |w| %>
-  <tr>
+<% @weeks.reverse_each do |w| %>
+  <tr id="data-table-<%= w.day %>">
     <td><%= w.day %></td>
     <td><%= w.created %></td>
     <td><%= w.fixed %></td>
@@ -26,6 +35,8 @@
  
 <br>
 
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
 <script>
 
@@ -36,32 +47,44 @@
 
 
 var margin = {top: 20, right: 20, bottom: 70, left: 140},
-    width = 600 - margin.left - margin.right,
+    width = 960 - margin.left - margin.right,
     height = 300 - margin.top - margin.bottom;
 
+// space between bars
+var padding=2;
+
 // Parse the date / time
-var	parseDate = d3.time.format("%Y-%m-%d").parse;
+var	parseDate=d3.time.format("%Y-%m-%d").parse;
 
-var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
+var formatTime=d3.time.format("%Y-%m-%d");
 
-var y = d3.scale.linear().range([height, 0]);
+var x=d3.scale.ordinal().rangeRoundBands([0, width], .05);
+//var x=d3.time.scale().domain();
 
-var xAxis = d3.svg.axis()
+var y=d3.scale.linear().range([height, 0]);
+
+var xAxis=d3.svg.axis()
     .scale(x)
     .orient("bottom")
-    .tickFormat(d3.time.format("%Y-%m-%d"));
+    .tickFormat(d3.time.format("%d %b"));
+
+// .ticks(d3.time.days,7)
+// .tickPadding(8)
 
 var yAxis = d3.svg.axis()
     .scale(y)
     .orient("left")
     .ticks(10);
 
-var svg = d3.select("body").append("svg")
+var svg = d3.select("#chart").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
     .attr("transform", 
           "translate(" + margin.left + "," + margin.top + ")");
+
+// see this - very nice
+// http://metricsgraphicsjs.org/
 
 //d3.csv("bar-data.csv", function(error, data) {
 
@@ -69,10 +92,11 @@ var svg = d3.select("body").append("svg")
     data.forEach(function(d) {
     	d.date = parseDate(d.day);
     	d.value = +d.created;
+    	d.wsi = +d.wsi
     });
 	
   x.domain(data.map(function(d) { return d.date; }));
-  y.domain([0, d3.max(data, function(d) { return d.value; })]);
+  y.domain([0, d3.max(data, function(d) { return d.wsi; })]);
 
   //alert(d3.max(data, function(d) { return d.created; }));
 
@@ -82,9 +106,12 @@ var svg = d3.select("body").append("svg")
       .call(xAxis)
     .selectAll("text")
       .style("text-anchor", "end")
-      .attr("dx", "-.8em")
-      .attr("dy", "-.55em")
-      .attr("transform", "rotate(-90)" );
+      .attr("transform","rotate(-45)");
+      
+      //.attr("dx", "-.8em")
+      //.attr("dy", "-.55em")
+      //.attr("transform", "rotate(-45)" );
+
 
   svg.append("g")
       .attr("class", "y axis")
@@ -96,14 +123,70 @@ var svg = d3.select("body").append("svg")
       .style("text-anchor", "end")
       .text("Weighted Severity");
 
-  svg.selectAll("bar")
+  svg.selectAll("rect")
       .data(data)
     .enter().append("rect")
-      .style("fill", "steelblue")
-      .attr("x", function(d) { return x(d.date); })
-      .attr("width", x.rangeBand())
+      .style("fill", "#C9C9FC")
+      .attr("stroke","#6B6BEE")
+      .attr("x", function(d) { return x(d.date)+padding; })
       .attr("y", function(d) { return y(d.value); })
-      .attr("height", function(d) { return height - y(d.value); });
+      .attr("width", x.rangeBand()-2*padding)
+      .attr("height", function(d) { return height - y(d.value); })
+      .on('mouseover', function(d){
+
+    	var nodeSelection = d3.select(this).style({opacity:'0.8'});
+    	nodeSelection.select("text").style({opacity:'1.0'});
+
+    	// highlight row in associated data table
+    	var tag="#data-table-"+formatTime(d.date);
+    	var rowSelection=d3.selectAll(tag+" td");
+    	rowSelection.style({background: "red"});
+	})
+      .on('mouseout', function(d){
+      d3.select(this).style({opacity:'1.0',})
+      d3.select("text").style({opacity:'1.0'});
+
+      	// unhighlight row in associated data table
+    	var tag="#data-table-"+formatTime(d.date);
+    	var rowSelection=d3.selectAll(tag+" td");
+    	rowSelection.style({background: "#ffffff"});
+    });
+
+      d3.selectAll("rect")
+  .on("click", function(d) {console.log(d);})
+
+
+  // add labels to bars 
+
+  svg.selectAll("bar")
+      .data(data)
+    .enter().append("text")
+      .text(function(d) { return (d.value); })
+      .attr("x", function(d) { return x(d.date)+x.rangeBand()/2; })
+      .attr("y", function(d) { return y(d.value)+15; })
+      .attr("text-anchor","middle")
+      .attr("font-family", "sans-serif")
+   		.attr("font-size", "11px")
+   		.attr("fill", "white");
+
+   // add the wsi line
+
+   var wsiLine=d3.svg.line()
+   	.x(function(d) {
+   		return(x(d.date))
+   })
+   	.y(function(d) {
+   		return(y(d.wsi))
+   	});
+
+   d3.select("svg")
+   	.append("path")
+   	.attr("d", wsiLine(data))
+   	.attr("fill","none")
+   	.attr("stroke","darkred")
+   	.attr("stroke-width",2)
+   	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
 
 //});
 

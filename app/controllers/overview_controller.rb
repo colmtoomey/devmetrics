@@ -1,6 +1,11 @@
 class OverviewController < ApplicationController
+  
   def index
-  	@weeks=DefectTrendByWeek.all.order(:day)
+  	@weeks=DefectTrendByWeek.all.order(day: :asc)
+  end
+
+  def group
+  	@weeks=DefectTrendByWeek.all.order(day: :asc)
   end
 
 	#user = User.find_by(name: 'David')
