@@ -1,0 +1,229 @@
+
+
+<%= javascript_include_tag "trend_chart" %>
+
+<div id="container">
+
+<h1>Weighted Severity Trend</h1>
+
+<h2>Overview Chart</h2>
+
+<div id="chart">
+</div>
+
+<h2>Data</h2>
+ 
+<table>
+  <tr>
+    <th>Date</th>
+    <th>Created</th>
+    <th>Fixed</th>
+    <th>Closed</th>
+    <th>WSI</th>
+  </tr>
+ 
+<% @weeks.reverse_each do |w| %>
+  <tr id="data-table-<%= w.day %>">
+    <td><%= w.day %></td>
+    <td><%= w.created %></td>
+    <td><%= w.fixed %></td>
+    <td><%= w.closed %></td>
+    <td><%= w.wsi %></td>
+  </tr>
+<% end %>
+</table>
+ 
+<br>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
+<script>
+
+	var data=<%= @weeks.to_json(:only => [:day, :created, :fixed, :closed, :wsi ]).html_safe %>
+
+	//alert(data[1].day);
+
+
+
+var margin = {top: 20, right: 20, bottom: 70, left: 140},
+    width = 960 - margin.left - margin.right,
+    height = 300 - margin.top - margin.bottom;
+
+// space between bars
+var padding=2;
+
+// Parse the date / time
+var	parseDate=d3.time.format("%Y-%m-%d").parse;
+
+var formatTime=d3.time.format("%Y-%m-%d");
+
+
+// set up the scales
+var x=d3.scale.ordinal().rangeRoundBands([0, width], .05);
+
+var groupScale=d3.scale.ordinal(); // was x1 - for a group of bars
+
+var y=d3.scale.linear().range([height, 0]);
+
+var xAxis=d3.svg.axis()
+    .scale(x)
+    .orient("bottom")
+    .tickFormat(d3.time.format("%d %b"));
+
+// .ticks(d3.time.days,7)
+// .tickPadding(8)
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .ticks(10);
+
+var svg = d3.select("#chart").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", 
+          "translate(" + margin.left + "," + margin.top + ")");
+
+// see this - very nice
+// http://metricsgraphicsjs.org/
+
+//d3.csv("bar-data.csv", function(error, data) {
+
+
+// CT: trying to figure this out
+  var fields=[ "created", "fixed", "closed" ];
+
+    data.forEach(function(d) {
+    	d.date=parseDate(d.day);
+    	d.value=+d.created;
+      d.fixed=+d.fixed;
+      d.closed=+d.closed;
+    	d.wsi=+d.wsi;
+
+      d.items=[ { name: "created", value: +d.created }, { name: "fixed", value: +d.fixed }, { name: "closed", value: +d.closed } ];
+
+    });
+	
+  x.domain(data.map(function(d) { return d.date; }));
+  groupScale.domain(fields).rangeRoundBands([0,x.rangeBand()]);
+  y.domain([0, d3.max(data, function(d) { return d.wsi; })]);
+
+  //alert(d3.max(data, function(d) { return d.created; }));
+
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis)
+    .selectAll("text")
+      .style("text-anchor", "end")
+      .attr("transform","rotate(-45)");
+      
+      //.attr("dx", "-.8em")
+      //.attr("dy", "-.55em")
+      //.attr("transform", "rotate(-45)" );
+
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Weighted Severity");
+
+  // create "holder" group for the bars
+  var theGroup=svg.selectAll("group")
+      .data(data)
+    .enter().append("g")
+      .style("fill", "#C9C9FC")
+      .attr("class","g")
+      .attr("transform", function(d) { return "translate("+x(d.date)+",0)"; })
+
+  // got to make this iterate over the fields of the group instead of all the items of the entire dataset
+
+var groupData=[1000, 2000, 3000];
+
+console.log(groupScale.rangeBand());
+
+
+// excel - http://peltiertech.com/using-colors-in-excel/
+//var color = d3.scale.ordinal().range(["#C0504D", "#F79646", "#9BBB59" ]);
+
+
+// colorbrewer2.org
+var color = d3.scale.ordinal().range(["#fc8d59", "#ffffbf", "#91cf60" ]);
+
+
+// count all "bar" children of the group, and if there are fewer elements than items in "data" create as many as needed to get to 5
+
+  theGroup.selectAll("bar")
+      .data(function(d) { return d.items; })  // get the bar data - array of {name, value} pairs
+    .enter().append("rect")
+      .style("fill", function(d) { return color(d.name); })
+      .attr("stroke","#6B6BEE")
+      // next line needs to be a scale that returns 1..3 (for 3 grouped bars) -> pixel
+      .attr("x", function(d) { return groupScale(d.name); })
+      .attr("y", function(d) { return y(d.value); })
+      .attr("width", groupScale.rangeBand())
+      .attr("height", function(d) { return height - y(d.value); })
+      .on('mouseover', function(d){
+
+    	var nodeSelection = d3.select(this).style({opacity:'0.8'});
+    	nodeSelection.select("text").style({opacity:'1.0'});
+
+    	// highlight row in associated data table
+    	var tag="#data-table-"+formatTime(d.date);
+    	var rowSelection=d3.selectAll(tag+" td");
+    	rowSelection.style({background: "red"});
+	})
+      .on('mouseout', function(d){
+      d3.select(this).style({opacity:'1.0',})
+      d3.select("text").style({opacity:'1.0'});
+
+      	// unhighlight row in associated data table
+    	var tag="#data-table-"+formatTime(d.date);
+    	var rowSelection=d3.selectAll(tag+" td");
+    	rowSelection.style({background: "#ffffff"});
+    });
+
+
+  // add labels to bars 
+
+  /*svg.selectAll("bar")
+      .data(data)
+    .enter().append("text")
+      .text(function(d) { return (d.value); })
+      .attr("x", function(d) { return x(d.date)+x.rangeBand()/2; })
+      .attr("y", function(d) { return y(d.value)+15; })
+      .attr("text-anchor","middle")
+      .attr("font-family", "sans-serif")
+   		.attr("font-size", "11px")
+   		.attr("fill", "white");*/
+
+   // add the wsi line
+
+   var wsiLine=d3.svg.line()
+   	.x(function(d) {
+   		return(x(d.date))
+   })
+   	.y(function(d) {
+   		return(y(d.wsi))
+   	});
+
+   d3.select("svg")
+   	.append("path")
+   	.attr("d", wsiLine(data))
+   	.attr("fill","none")
+   	.attr("stroke","darkred")
+   	.attr("stroke-width",2)
+   	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+//});
+
+
+</script>
