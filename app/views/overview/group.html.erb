@@ -140,27 +140,57 @@ var svg = d3.select("#chart").append("svg")
       .data(data)
     .enter().append("g")
       .style("fill", "#C9C9FC")
-      .attr("class","g")
+      .attr("class","week")
+      .attr("id",function(d) { return "#data-table-"+formatTime(d.date) })
       .attr("transform", function(d) { return "translate("+x(d.date)+",0)"; })
+      // add attrs
+      .attr("x", function(d) { return 0; })
+      .attr("y", function(d) { return 0; })
+      .attr("width", x.rangeBand())
+      .attr("height", function(d) { return height; })
+      // and behaviour
+      .on('mouseover', function(d){
 
-  // got to make this iterate over the fields of the group instead of all the items of the entire dataset
+        var nodeSelection=d3.select(this).style({opacity:'0.8'});
+        nodeSelection.select("text").style({opacity:'1.0'});
 
-var groupData=[1000, 2000, 3000];
+        d3.select(this).style({background: 'red'});
+        d3.select(this).attr("fill","#00ff00");
 
-console.log(groupScale.rangeBand());
+        nodeSelection.append("rect")
+          .style("fill", "#C9C9FC")
+          .attr("x",0)
+          .attr("y",0)
+          .attr("width",x.rangeBand())
+          .attr("height", height)
+          .attr("opacity","0.1");
 
+        //console.log(d);
+
+        // highlight row in associated data table
+        var tag="#data-table-"+formatTime(d.date);
+        var rowSelection=d3.selectAll(tag+" td");
+        rowSelection.style({background: "red"});
+      })
+      .on('mouseout', function(d){
+      d3.select(this).style({opacity:'1.0',})
+      d3.select("text").style({opacity:'1.0'});
+
+        // unhighlight row in associated data table
+      var tag="#data-table-"+formatTime(d.date);
+      var rowSelection=d3.selectAll(tag+" td");
+      rowSelection.style({background: "#ffffff"});
+    });
 
 // excel - http://peltiertech.com/using-colors-in-excel/
 //var color = d3.scale.ordinal().range(["#C0504D", "#F79646", "#9BBB59" ]);
 
-
 // colorbrewer2.org
 var color = d3.scale.ordinal().range(["#fc8d59", "#ffffbf", "#91cf60" ]);
 
-
 // count all "bar" children of the group, and if there are fewer elements than items in "data" create as many as needed to get to 5
 
-  theGroup.selectAll("bar")
+  theGroup.selectAll("rect")
       .data(function(d) { return d.items; })  // get the bar data - array of {name, value} pairs
     .enter().append("rect")
       .style("fill", function(d) { return color(d.name); })
@@ -169,27 +199,8 @@ var color = d3.scale.ordinal().range(["#fc8d59", "#ffffbf", "#91cf60" ]);
       .attr("x", function(d) { return groupScale(d.name); })
       .attr("y", function(d) { return y(d.value); })
       .attr("width", groupScale.rangeBand())
-      .attr("height", function(d) { return height - y(d.value); })
-      .on('mouseover', function(d){
-
-    	var nodeSelection = d3.select(this).style({opacity:'0.8'});
-    	nodeSelection.select("text").style({opacity:'1.0'});
-
-    	// highlight row in associated data table
-    	var tag="#data-table-"+formatTime(d.date);
-    	var rowSelection=d3.selectAll(tag+" td");
-    	rowSelection.style({background: "red"});
-	})
-      .on('mouseout', function(d){
-      d3.select(this).style({opacity:'1.0',})
-      d3.select("text").style({opacity:'1.0'});
-
-      	// unhighlight row in associated data table
-    	var tag="#data-table-"+formatTime(d.date);
-    	var rowSelection=d3.selectAll(tag+" td");
-    	rowSelection.style({background: "#ffffff"});
-    });
-
+      .attr("height", function(d) { return height - y(d.value); });
+      
 
   // add labels to bars 
 
