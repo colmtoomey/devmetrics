@@ -196,7 +196,12 @@ var tooltip=d3.select("#chart")
       var tag="#data-table-"+formatTime(d.date);
       var rowSelection=d3.selectAll(tag+" td");
       rowSelection.style({background: "#ffffff"});
-    });
+
+      tooltip.style("visibility","hidden");
+    })
+      .on("mousemove", function(d) {
+        tooltip.style("top",(d3.event.pageY-10+"px")).style("left",(d3.event.pageX+10)+"px");
+      });
 
 // excel - http://peltiertech.com/using-colors-in-excel/
 //var color = d3.scale.ordinal().range(["#C0504D", "#F79646", "#9BBB59" ]);
