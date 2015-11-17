@@ -86,6 +86,15 @@ var svg = d3.select("#chart").append("svg")
     .attr("transform", 
           "translate(" + margin.left + "," + margin.top + ")");
 
+var tooltip=d3.select("#chart")
+  .append("div")
+  .style("position","absolute")
+  .style("z-index","10")
+  .style("visibility","hidden")
+  .style("background","black")
+  .style("color","white")
+  .text("a simple tooltip");
+
 // see this - very nice
 // http://metricsgraphicsjs.org/
 
@@ -151,7 +160,7 @@ var svg = d3.select("#chart").append("svg")
       // and behaviour
       .on('mouseover', function(d){
 
-        var nodeSelection=d3.select(this).style({opacity:'0.8'});
+        /*var nodeSelection=d3.select(this).style({opacity:'0.8'});
         nodeSelection.select("text").style({opacity:'1.0'});
 
         d3.select(this).style({background: 'red'});
@@ -163,7 +172,7 @@ var svg = d3.select("#chart").append("svg")
           .attr("y",0)
           .attr("width",x.rangeBand())
           .attr("height", height)
-          .attr("opacity","0.1");
+          .attr("opacity","0.1");*/
 
         //console.log(d);
 
@@ -171,6 +180,13 @@ var svg = d3.select("#chart").append("svg")
         var tag="#data-table-"+formatTime(d.date);
         var rowSelection=d3.selectAll(tag+" td");
         rowSelection.style({background: "red"});
+
+
+        tooltip.style("visibility","visible");
+        tooltip.style("top",(d3.event.pageY-10+"px")).style("left",(d3.event.pageX+10)+"px");
+
+        tooltip.html("created: "+d.created+"<br>fixed: "+d.fixed+"<br>closed: "+d.closed);
+
       })
       .on('mouseout', function(d){
       d3.select(this).style({opacity:'1.0',})
