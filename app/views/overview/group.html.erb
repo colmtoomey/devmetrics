@@ -203,6 +203,20 @@ var tooltip=d3.select("#chart")
         tooltip.style("top",(d3.event.pageY-10+"px")).style("left",(d3.event.pageX+10)+"px");
       });
 
+
+// TODO: try adding a background rect to each one of the groups created above - this works and tooltip starts working too ... see above and think about it
+// add id for this svg object and ensure it gets highlighted
+
+  theGroup.selectAll("bucket")
+    .data(data)
+      .enter().append("rect")
+          .style("fill", "#ffff00")
+          .attr("x",0)
+          .attr("y",0)
+          .attr("width",x.rangeBand())
+          .attr("height", height);
+
+
 // excel - http://peltiertech.com/using-colors-in-excel/
 //var color = d3.scale.ordinal().range(["#C0504D", "#F79646", "#9BBB59" ]);
 
@@ -211,7 +225,9 @@ var color = d3.scale.ordinal().range(["#fc8d59", "#ffffbf", "#91cf60" ]);
 
 // count all "bar" children of the group, and if there are fewer elements than items in "data" create as many as needed to get to 5
 
-  theGroup.selectAll("rect")
+
+  // will have same number of 'bar' children as there are items in d.items
+  theGroup.selectAll("bar")
       .data(function(d) { return d.items; })  // get the bar data - array of {name, value} pairs
     .enter().append("rect")
       .style("fill", function(d) { return color(d.name); })
