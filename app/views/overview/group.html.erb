@@ -91,8 +91,10 @@ var tooltip=d3.select("#chart")
   .style("position","absolute")
   .style("z-index","10")
   .style("visibility","hidden")
-  .style("background","black")
-  .style("color","white")
+  .style("background","#FFFFA4")
+  .style("color","black")
+  .style("border","1px solid black")
+  .style("padding","5px")
   .text("a simple tooltip");
 
 // see this - very nice
@@ -204,19 +206,6 @@ var tooltip=d3.select("#chart")
       });
 
 
-// TODO: try adding a background rect to each one of the groups created above - this works and tooltip starts working too ... see above and think about it
-// add id for this svg object and ensure it gets highlighted
-
-  theGroup.selectAll("bucket")
-    .data(data)
-      .enter().append("rect")
-          .style("fill", "#ffff00")
-          .attr("x",0)
-          .attr("y",0)
-          .attr("width",x.rangeBand())
-          .attr("height", height);
-
-
 // excel - http://peltiertech.com/using-colors-in-excel/
 //var color = d3.scale.ordinal().range(["#C0504D", "#F79646", "#9BBB59" ]);
 
@@ -269,6 +258,28 @@ var color = d3.scale.ordinal().range(["#fc8d59", "#ffffbf", "#91cf60" ]);
    	.attr("stroke","darkred")
    	.attr("stroke-width",2)
    	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+// TODO: try adding a background rect to each one of the groups created above - this works and tooltip starts working too ... see above and think about it
+// add id for this svg object and ensure it gets highlighted
+
+  theGroup.selectAll("bucket")
+    .data(data)
+      .enter().append("rect")
+          .style("fill", "#ffffff")
+          .style("opacity","0.0")
+          .attr("x",0)
+          .attr("y",0)
+          .attr("width",x.rangeBand())
+          .attr("height", height)
+          .on('mouseover', function(d){
+            d3.select(this).style("fill","#00ff00");
+            d3.select(this).style("opacity","0.2");
+          })
+          .on('mouseout', function(d) {
+            d3.select(this).style("fill","#ffffff");
+            d3.select(this).style("opacity","0.0");
+          });
 
 
 //});

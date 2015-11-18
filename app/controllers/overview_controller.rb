@@ -1,7 +1,7 @@
 class OverviewController < ApplicationController
   
   def index
-  	@weeks=DefectTrendByWeek.all.order(day: :asc)
+  	@weeks=DefectTrendByWeek.all.order(day: :asc);
   end
 
   def group
