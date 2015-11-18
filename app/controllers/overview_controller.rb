@@ -6,6 +6,8 @@ class OverviewController < ApplicationController
 
   def group
   	@weeks=DefectTrendByWeek.all.order(day: :asc)
+
+  	@weeks=@weeks.slice(-12,12)
   end
 
 	#user = User.find_by(name: 'David')
