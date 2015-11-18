@@ -245,10 +245,10 @@ var color = d3.scale.ordinal().range(["#fc8d59", "#ffffbf", "#91cf60" ]);
 
    var wsiLine=d3.svg.line()
    	.x(function(d) {
-   		return(x(d.date))
+   		return(x(d.date)+x.rangeBand()/2);
    })
    	.y(function(d) {
-   		return(y(d.wsi))
+   		return(y(d.wsi));
    	});
 
    d3.select("svg")
