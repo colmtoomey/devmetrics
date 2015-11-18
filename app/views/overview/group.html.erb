@@ -185,9 +185,9 @@ var tooltip=d3.select("#chart")
 
 
         tooltip.style("visibility","visible");
-        tooltip.style("top",(d3.event.pageY-10+"px")).style("left",(d3.event.pageX+10)+"px");
+        //tooltip.style("top",(d3.event.pageY-10+"px")).style("left",(d3.event.pageX+10)+"px");
 
-        tooltip.html("created: "+d.created+"<br>fixed: "+d.fixed+"<br>closed: "+d.closed);
+        tooltip.html("created: "+d.created+"<br>fixed: "+d.fixed+"<br>closed: "+d.closed+"<br><b>WSI: </b>"+d.wsi);
 
       })
       .on('mouseout', function(d){
