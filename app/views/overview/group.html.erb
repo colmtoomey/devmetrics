@@ -265,12 +265,12 @@ var tooltip=d3.select("#chart")
    	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 
-// TODO: try adding a background rect to each one of the groups created above - this works and tooltip starts working too ... see above and think about it
+// TODO: try adding JUST ONE background rect to each one of the groups created above - this works and tooltip starts working too ... see above and think about it
 // add id for this svg object and ensure it gets highlighted
 
   theGroup.selectAll("bucket")
-    .data(data)
-      .enter().append("rect")
+  .data([1]).enter()
+    .append("rect")
           .style("fill", "#ffffff")
           .style("opacity","0.0")
           .attr("x",0)
