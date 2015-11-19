@@ -91,3 +91,27 @@ td
 	   stroke-width: 1.5;
 	   stroke-opacity: 0.5;
 	}
+
+table.tooltip {
+		border: 0px;
+		background-color: #FFFFA4;
+		color: black;
+	}
+
+table.tooltip td {
+	background-color: #FFFFA4;
+	color: black;
+}
+
+.tooltip {
+	transition: visibility 0s, opacity 0.5s linear;
+}
+
+.tooltip h3 {
+	color: red;
+	text-align: center;
+	font-size: 12px;
+	padding: 0px;
+	margin: 0px;
+}
+

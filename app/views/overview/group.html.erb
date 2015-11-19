@@ -58,7 +58,6 @@ var	parseDate=d3.time.format("%Y-%m-%d").parse;
 
 var formatTime=d3.time.format("%Y-%m-%d");
 
-
 // set up the scales
 var x=d3.scale.ordinal().rangeRoundBands([0, width], .05);
 
@@ -79,15 +78,22 @@ var yAxis = d3.svg.axis()
     .orient("left")
     .ticks(10);
 
+// excel - http://peltiertech.com/using-colors-in-excel/
+//var color = d3.scale.ordinal().range(["#C0504D", "#F79646", "#9BBB59" ]);
+
+// colorbrewer2.org
+var color=d3.scale.ordinal().range([ "#fc8d59", "#ffffbf", "#91cf60" ]);
+
 var svg = d3.select("#chart").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
     .attr("transform", 
-          "translate(" + margin.left + "," + margin.top + ")");
+      "translate(" + margin.left + "," + margin.top + ")");
 
 var tooltip=d3.select("#chart")
   .append("div")
+  .attr("class","tooltip")
   .style("position","absolute")
   .style("z-index","10")
   .style("visibility","hidden")
@@ -185,9 +191,14 @@ var tooltip=d3.select("#chart")
 
 
         tooltip.style("visibility","visible");
+        tooltip.style("opacity: ","1")
         //tooltip.style("top",(d3.event.pageY-10+"px")).style("left",(d3.event.pageX+10)+"px");
 
-        tooltip.html("created: "+d.created+"<br>fixed: "+d.fixed+"<br>closed: "+d.closed+"<br><b>WSI: </b>"+d.wsi);
+        tooltip.html("<h3>Week starting "+formatTime(d.date)+"</h3><table class='tooltip'>"
+          +"<tr><td class='legend' style='color: "+color(0)+"'>&#x25a0;</td><td>created: </td><td>"+d.created+"</td></tr>"
+          +"<tr><td style='color: "+color(1)+"'>&#x25a0;</td><td>fixed: </td><td>"+d.fixed+"</td></tr>"
+          +"<tr><td style='color: "+color(2)+"'>&#x25a0;</td><td>closed: </td><td>"+d.closed+"</td></tr>"
+          +"<tr><td></td><td>WSI: </td><td>"+d.wsi+"</td></tr></table>");
 
       })
       .on('mouseout', function(d){
@@ -200,17 +211,11 @@ var tooltip=d3.select("#chart")
       rowSelection.style({background: "#ffffff"});
 
       tooltip.style("visibility","hidden");
+      tooltip.style("opacity: ","0")
     })
       .on("mousemove", function(d) {
-        tooltip.style("top",(d3.event.pageY-10+"px")).style("left",(d3.event.pageX+10)+"px");
+        tooltip.style("top",(d3.event.pageY+10+"px")).style("left",(d3.event.pageX+15)+"px");
       });
-
-
-// excel - http://peltiertech.com/using-colors-in-excel/
-//var color = d3.scale.ordinal().range(["#C0504D", "#F79646", "#9BBB59" ]);
-
-// colorbrewer2.org
-var color = d3.scale.ordinal().range(["#fc8d59", "#ffffbf", "#91cf60" ]);
 
 // count all "bar" children of the group, and if there are fewer elements than items in "data" create as many as needed to get to 5
 
