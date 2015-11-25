@@ -191,7 +191,6 @@ var tooltip=d3.select("#chart")
 
 
         tooltip.style("visibility","visible");
-        tooltip.style("opacity: ","1")
         //tooltip.style("top",(d3.event.pageY-10+"px")).style("left",(d3.event.pageX+10)+"px");
 
         tooltip.html("<h3>Week starting "+formatTime(d.date)+"</h3><table class='tooltip'>"
@@ -202,8 +201,8 @@ var tooltip=d3.select("#chart")
 
       })
       .on('mouseout', function(d){
-      d3.select(this).style({opacity:'1.0',})
-      d3.select("text").style({opacity:'1.0'});
+        //d3.select(this).style({opacity:'1.0',})
+        //d3.select("text").style({opacity:'1.0'});
 
         // unhighlight row in associated data table
       var tag="#data-table-"+formatTime(d.date);
@@ -211,10 +210,9 @@ var tooltip=d3.select("#chart")
       rowSelection.style({background: "#ffffff"});
 
       tooltip.style("visibility","hidden");
-      tooltip.style("opacity: ","0")
     })
       .on("mousemove", function(d) {
-        tooltip.style("top",(d3.event.pageY+10+"px")).style("left",(d3.event.pageX+15)+"px");
+        tooltip.style("top",(d3.event.pageY+10+"px")).style("left",(d3.event.pageX+x.rangeBand())+"px");
       });
 
 // count all "bar" children of the group, and if there are fewer elements than items in "data" create as many as needed to get to 5
