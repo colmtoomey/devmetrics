@@ -48,3 +48,5 @@ end
 gem 'rails_12factor', group: :production
 
 gem 'rally_rest_api'
+
+gem 'font-awesome-sass'
