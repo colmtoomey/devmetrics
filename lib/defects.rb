@@ -31,7 +31,7 @@ def incremental_average(previousAverage,value,nvalues)
    return(((value-previousAverage)/(nvalues+1))+previousAverage)
 end
 
-# convert a rally date to a ruby date
+# convert a rally UTC date to a ruby date
 def get_date(rally_date_field)
    the_date=DateTime.parse(rally_date_field).to_date()
    #the_date=DateTime.new(date_arr[0],date_arr[1],date_arr[2])
