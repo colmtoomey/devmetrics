@@ -126,7 +126,7 @@ var tooltip=d3.select("#chart")
     });
 	
   x.domain(data.map(function(d) { return d.date; }));
-  groupScale.domain(fields).rangeRoundBands([0,x.rangeBand()]);
+  groupScale.domain(fields).rangeRoundBands([0,x.rangeBand()],0.05);
   y.domain([0, d3.max(data, function(d) { return d.wsi; })]);
 
   //alert(d3.max(data, function(d) { return d.created; }));
@@ -228,10 +228,16 @@ var tooltip=d3.select("#chart")
       .attr("stroke","#6B6BEE")
       // next line needs to be a scale that returns 1..3 (for 3 grouped bars) -> pixel
       .attr("x", function(d) { return groupScale(d.name); })
-      .attr("y", function(d) { return y(d.value); })
+      //.attr("y", function(d) { return y(d.value); })
+      .attr("y", height )
       .attr("width", groupScale.rangeBand())
-      .attr("height", function(d) { return height - y(d.value); });
-      
+      .attr("height", 0)
+      //.attr("height", function(d) { return height - y(d.value); })
+      .transition()
+      //.delay(function (d,i){ return i * 100;})
+      .duration(300)
+      .attr("y", function(d) { return y(d.value); })  // visual "bottom" of bar
+      .attr("height", function(d) { return height-y(d.value); }); // visual "top" of bar
 
   // add labels to bars 
 
@@ -286,8 +292,6 @@ var tooltip=d3.select("#chart")
             d3.select(this).style("opacity","0.0");
           });
 
-
-//});
 
 
 </script>
