@@ -309,7 +309,7 @@ tmp.each { |item|
    #wsi=wsi+record[:created]-record[:fixed]
    wsi_daily.push([item[0],xwsi])
 
-   line = "xx #{item[0].strftime('%Y-%m-%d')}, #{record[:created]}, #{record[:closed]}, #{record[:fixed]}, #{xwsi}\n"
+   line = "#{item[0].strftime('%Y-%m-%d')}, #{record[:created]}, #{record[:closed]}, #{record[:fixed]}, #{xwsi}\n"
 
    week_record=DefectTrendByWeek.find_or_initialize_by(day: item[0].strftime('%Y-%m-%d'))
    week_record.created=record[:created]
