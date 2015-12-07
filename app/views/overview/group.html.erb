@@ -15,7 +15,7 @@
 
 <h2>Data</h2>
  
-<%= if weeks.length? %>
+<% if @weeks.length > 0 %>
 <table>
   <tr>
     <th>Date</th>
@@ -34,7 +34,8 @@
   </tr>
 <% end %>
 </table>
-<%= end %>
+
+<% end %>
  
 <br>
 
