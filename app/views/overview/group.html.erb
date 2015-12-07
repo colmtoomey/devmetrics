@@ -50,7 +50,7 @@
     width = 960 - margin.left - margin.right,
     height = 300 - margin.top - margin.bottom;
 
-  if (0==data.length) {
+  if (null==data || 0==data.length) {
 
     var svg=d3.select("#chart").append("div")
       .attr("id","test")
