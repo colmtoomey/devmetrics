@@ -42,10 +42,6 @@
 
 	var data=<%= @weeks.to_json(:only => [:day, :created, :fixed, :closed, :wsi ]).html_safe %>
 
-	//alert(data[1].day);
-
-
-
 var margin = {top: 20, right: 20, bottom: 70, left: 140},
     width = 960 - margin.left - margin.right,
     height = 300 - margin.top - margin.bottom;
@@ -97,8 +93,6 @@ var svg = d3.select("#chart").append("svg")
 	
   x.domain(data.map(function(d) { return d.date; }));
   y.domain([0, d3.max(data, function(d) { return d.wsi; })]);
-
-  //alert(d3.max(data, function(d) { return d.created; }));
 
   svg.append("g")
       .attr("class", "x axis")

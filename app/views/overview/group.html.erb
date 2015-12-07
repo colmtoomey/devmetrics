@@ -44,13 +44,22 @@
 
 	var data=<%= @weeks.to_json(:only => [:day, :created, :fixed, :closed, :wsi ]).html_safe %>
 
-	//alert(data[1].day);
-
-
-
-var margin = {top: 20, right: 20, bottom: 70, left: 140},
+  var margin = {top: 20, right: 20, bottom: 70, left: 140},
     width = 960 - margin.left - margin.right,
     height = 300 - margin.top - margin.bottom;
+
+  if (0==data.length) {
+
+    var svg=d3.select("#chart").append("div")
+      .attr("id","test")
+      .attr("class","error")
+      .style("width", ""+width + margin.left + margin.right)
+      .style("height", ""+height + margin.top + margin.bottom)
+      .insert("p")
+      .html("<i class='fa fa-exclamation-triangle'></i> no data");
+   
+  } else {
+
 
 // space between bars
 var padding=2;
@@ -291,6 +300,8 @@ var tooltip=d3.select("#chart")
             d3.select(this).style("fill","#ffffff");
             d3.select(this).style("opacity","0.0");
           });
+
+      }
 
 
 

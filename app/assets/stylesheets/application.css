@@ -40,6 +40,22 @@ body {
 	box-shadow: 10px 10px 15px #ccc;
 }
 
+#chart .error {
+	background: #eee;
+}
+
+#chart .error {
+	width: 1000px;
+	height: 300px;
+}
+
+#chart .error p {
+	text-align: center;
+	position: relative;
+	top: 50%;
+	transform: 			translateY(-50%);
+}
+
 table
 {
     border: 1px solid #ccc;
