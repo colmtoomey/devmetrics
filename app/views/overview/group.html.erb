@@ -27,6 +27,7 @@
  
 <% @weeks.reverse_each do |w| %>
   <tr id="data-table-<%= w.day %>">
+    <td><%= w.day %></td>
     <td><%= w.created %></td>
     <td><%= w.fixed %></td>
     <td><%= w.closed %></td>
