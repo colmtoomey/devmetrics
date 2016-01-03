@@ -87,7 +87,7 @@ def process_defects(defect_list,start_date,end_date,wsi_hash)
          d=created_date
          
          # bucket data into weeks - using Monday as date
-         d=Date.commercial(created_date.year,created_date.cweek,1)
+         d=Date.commercial(created_date.cwyear,created_date.cweek,1)
          
          # use week number? (cweek) or julian date?
          
@@ -161,7 +161,7 @@ def process_defects(defect_list,start_date,end_date,wsi_hash)
                   d=fixed_date
                   
                   # bucket data into weeks
-                  d=Date.commercial(fixed_date.year,fixed_date.cweek,1)
+                  d=Date.commercial(fixed_date.cwyear,fixed_date.cweek,1)
                   
                   record=wsi_hash[d]
                   if (record)
@@ -189,7 +189,7 @@ def process_defects(defect_list,start_date,end_date,wsi_hash)
                         d=closed_date
                         
                         # bucket data into weeks
-                        d=Date.commercial(closed_date.year,closed_date.cweek,1)
+                        d=Date.commercial(closed_date.cwyear,closed_date.cweek,1)
                         
                         record=wsi_hash[d]
                         if (record)
