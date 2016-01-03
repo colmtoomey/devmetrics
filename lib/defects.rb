@@ -86,7 +86,7 @@ def process_defects(defect_list,start_date,end_date,wsi_hash)
         
          d=created_date
          
-         # bucket data into weeks - using Monday as date
+         # bucket data into commercial weeks
          d=Date.commercial(created_date.cwyear,created_date.cweek,1)
          
          # use week number? (cweek) or julian date?
@@ -160,7 +160,7 @@ def process_defects(defect_list,start_date,end_date,wsi_hash)
                   #d=fixed_date.to_time.to_i*1000
                   d=fixed_date
                   
-                  # bucket data into weeks
+                  # bucket data into commercial weeks
                   d=Date.commercial(fixed_date.cwyear,fixed_date.cweek,1)
                   
                   record=wsi_hash[d]
@@ -188,7 +188,7 @@ def process_defects(defect_list,start_date,end_date,wsi_hash)
                         # only counted if defect was created during project... TODO: count the stuff from previous projects that was fixed?
                         d=closed_date
                         
-                        # bucket data into weeks
+                        # bucket data into commercial weeks
                         d=Date.commercial(closed_date.cwyear,closed_date.cweek,1)
                         
                         record=wsi_hash[d]
