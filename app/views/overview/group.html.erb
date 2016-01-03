@@ -2,19 +2,20 @@
 
 <div id="container">
 
-<h1>Weighted Severity Trend</h1>
+<h1>Weighted Severity</h1>
 
 
 
-<h2>Overview Chart</h2>
+<h2>Overview</h2>
 
 <div id="chart">
     <span id="menu" style="float: right; margin: 10px 10px"><i class="fa fa-bars"></i></span>
-    <h3 style="text-align: center;">Weighted Severity Chart</h3>
+    <h3 style="text-align: center;">Weighted Severity Trend</h3>
 </div>
 
 <h2>Data</h2>
- 
+
+<div class="data-table">
 <% if !@weeks.blank? %>
 <table>
   <tr>
@@ -37,6 +38,8 @@
 </table>
 
 <% end %>
+
+</div>
  
 <br>
 

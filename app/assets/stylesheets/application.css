@@ -131,3 +131,8 @@ table.tooltip td {
 	margin: 0px;
 }
 
+.data-table table {
+	margin-left:auto; 
+    margin-right:auto;
+}
+
