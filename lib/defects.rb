@@ -71,6 +71,9 @@ def process_defects(defect_list,start_date,end_date,wsi_hash)
   
    high_priority=0
    high_severity=0
+
+   starting_wsi=0
+   starting_wsi_list=[]
   
    defect_list.each do |defect|
   
@@ -79,17 +82,23 @@ def process_defects(defect_list,start_date,end_date,wsi_hash)
       createdby=nil
       severity=get_wsi(defect)
      
-      # 'created' calculations are only affected by defects created between the specified dates
-      if (!created_date.nil? && created_date>=start_date && created_date<=end_date)
+      # 'created' calculations include defects modified during project but created before it started - wsi for those defects goes into start week
+      if (!created_date.nil? && created_date<=end_date)
          
-         total_created_defects=total_created_defects+1
-        
-         d=created_date
+         if (created_date>=start_date)
+            total_created_defects=total_created_defects+1
+         end
          
+         thedate=created_date
+         if (created_date<start_date)
+            # created before start date so we'll count it in the first week - not sure this is correct! should only be in WSI if start was open/fixed/cannot-fix/deferred at this time
+            thedate=start_date
+            starting_wsi=starting_wsi+severity
+            starting_wsi_list << { :id => "#{defect.formatted_i_d}", :state => "#{defect.state}", :severity => "#{severity}" }
+         end
+
          # bucket data into commercial weeks
-         d=Date.commercial(created_date.cwyear,created_date.cweek,1)
-         
-         # use week number? (cweek) or julian date?
+         d=Date.commercial(thedate.cwyear,thedate.cweek,1)
          
          record=wsi_hash[d]
          if (record)
@@ -133,62 +142,70 @@ def process_defects(defect_list,start_date,end_date,wsi_hash)
       closedby=nil
      
       defect.revision_history.revisions.each do |revision|
+
+         # we always see most recent revision first
        
+         #puts "#{revision.revision_number} #{get_date(revision.creation_date).strftime('%Y-%m-%d')}"
+
          if (revision.description=='Original revision')
             # already got creation date, check who created the defect
             createdby=revision.user
-           
-            # removed as I try to fix the wsi calculations
-            #wsi=wsi+severity
-           
          elsif (defect.state=="Fixed" || defect.state=="Closed")
-            # check if this is X->Fixed transition
-            m=FIXED_RE.match(revision.description)
-            if (m)
-               thefixer=revision.user
-               #if ($fixed_statistics[thefixer].nil?)
-               #   $fixed_statistics[thefixer]=Array.new();
-               #end
-               #$fixed_statistics[thefixer] << defect
+
+            # check if this is X->Fixed transition - only count most recent instance of the transition (the first one we see)
+            m=nil
+            if (fixed_date.nil?)
+               m=FIXED_RE.match(revision.description)
+               if (m)
+                  thefixer=revision.user
+                  #if ($fixed_statistics[thefixer].nil?)
+                  #   $fixed_statistics[thefixer]=Array.new();
+                  #end
+                  #$fixed_statistics[thefixer] << defect
               
-               # get fixed date
-               fixed_date=get_date(revision.creation_date)
-               if (!fixed_date.nil? && fixed_date>=start_date && fixed_date<=end_date)
-                  total_fixed_defects=total_fixed_defects+1
+                  fixed_date=get_date(revision.creation_date)
+                  if (!fixed_date.nil? && fixed_date>=start_date && fixed_date<=end_date)
+                     # we only care if it was fixed during the release date interval
+                     total_fixed_defects=total_fixed_defects+1
+
+                     if (fixed_date<start_date)
+                           puts "************* found something that was FIXED before project start!!!!!!!! #{defect.formatted_i_d}"
+                           closed_Date=start_date
+                        end
                  
-                  # add to the wsi hash
-                  #d=fixed_date.to_time.to_i*1000
-                  d=fixed_date
+                     # add to the wsi hash
                   
-                  # bucket data into commercial weeks
-                  d=Date.commercial(fixed_date.cwyear,fixed_date.cweek,1)
+                     # bucket data into commercial weeks
+                     d=Date.commercial(fixed_date.cwyear,fixed_date.cweek,1)
                   
-                  record=wsi_hash[d]
-                  if (record)
-                     record[:fixed]=record[:fixed]+severity
-                  else
-                     wsi_hash[d]={ :created => 0, :fixed => severity, :closed => 0 }
+                     record=wsi_hash[d]
+                     if (record)
+                        record[:fixed]=record[:fixed]+severity
+                     else
+                        wsi_hash[d]={ :created => 0, :fixed => severity, :closed => 0 }
+                     end
                   end
-                 
                end
-            else
-               # check if this is X->Closed transition
+            end
+
+            # check if this is X->Closed transition - don't count stuff that was reopened, only count most recent instance of transition (the first one we see)
+            if (m.nil? && closed_date.nil? && defect.state=="Closed")
                m=CLOSED_RE.match(revision.description)
                if (m)
                   # get closed date
                   closedby=revision.user
                   closed_date=get_date(revision.creation_date)
-                  if (!closed_date.nil? && closed_date>=start_date && closed_date<=end_date)
-                     total_closed_defects=total_closed_defects+1
+                  if (!closed_date.nil? && closed_date<=end_date)
                      
-                     # removed as I try to fix the wsi calculations
-                     #wsi=wsi-severity
-                    
-                     if (!created_date.nil? && created_date>=start_date && created_date<=end_date)
-                        # only counted if defect was created during project... TODO: count the stuff from previous projects that was fixed?
-                        d=closed_date
+                     if (closed_date>=start_date)
+                        total_closed_defects=total_closed_defects+1
+                     end
                         
                         # bucket data into commercial weeks
+                        if (closed_date<start_date)
+                           puts "************* found something that closed before project start!!!!!!!! #{defect.formatted_i_d}"
+                           closed_date=start_date
+                        end
                         d=Date.commercial(closed_date.cwyear,closed_date.cweek,1)
                         
                         record=wsi_hash[d]
@@ -197,7 +214,6 @@ def process_defects(defect_list,start_date,end_date,wsi_hash)
                         else
                            wsi_hash[d]={ :created => 0, :fixed => 0, :closed => severity }
                         end
-                     end
                   end
                end
             end
@@ -222,7 +238,9 @@ def process_defects(defect_list,start_date,end_date,wsi_hash)
       print "#{item[0].strftime('%Y-%m-%d')} CREATED=#{record[:created]} CLOSED=#{record[:closed]} FIXED=#{record[:fixed]} WSI=#{xwsi}\n"
    }
 
- 
+   puts "starting wsi=#{starting_wsi}"
+   pp starting_wsi_list;
+
 end
 
 # get all defects updated during sprint
@@ -245,6 +263,8 @@ end
 def get_release_defects(rally,project,release,wsi_hash)
   
    start_date=get_date(release.release_start_date)
+
+   #start_date=DateTime.new(2016,2,29)
    end_date=get_date(release.release_date)
   
    query_result=rally.find(:defect, :fetch => true, :project => project, :project_scope_up => false) {
@@ -253,8 +273,8 @@ def get_release_defects(rally,project,release,wsi_hash)
             greater_than :last_update_date, start_date.strftime('%Y-%m-%dT%H:%M:%S.000Z')
             less_than :last_update_date, end_date.strftime('%Y-%m-%dT%H:%M:%S.000Z')
          }
-         equal :state, "Open"
-         equal :state, "Submitted"
+         # used to be equal :state, "Submitted" and "Open"
+         less_than :state, "Closed"
       }
    }
   
