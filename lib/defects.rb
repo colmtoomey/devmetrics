@@ -169,8 +169,8 @@ def process_defects(defect_list,start_date,end_date,wsi_hash)
                      total_fixed_defects=total_fixed_defects+1
 
                      if (fixed_date<start_date)
-                           puts "************* found something that was FIXED before project start!!!!!!!! #{defect.formatted_i_d}"
-                           closed_Date=start_date
+                           #puts "************* found something that was FIXED before project start!!!!!!!! #{defect.formatted_i_d}"
+                           closed_date=start_date
                         end
                  
                      # add to the wsi hash
@@ -203,7 +203,7 @@ def process_defects(defect_list,start_date,end_date,wsi_hash)
                         
                         # bucket data into commercial weeks
                         if (closed_date<start_date)
-                           puts "************* found something that closed before project start!!!!!!!! #{defect.formatted_i_d}"
+                           #puts "************* found something that closed before project start!!!!!!!! #{defect.formatted_i_d}"
                            closed_date=start_date
                         end
                         d=Date.commercial(closed_date.cwyear,closed_date.cweek,1)
